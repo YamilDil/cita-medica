@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Plataforma para reservar citas veterinarias">
+    <title>Cuida a tu Mascota - Reservas Veterinarias</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f3f4f6;
+            color: #2B4A6B;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .btn-primary {
+            background: linear-gradient(to right, #2B4A6B, #34C759);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(to right, #34C759, #2B4A6B);
+        }
+        .form-control {
+            width: 100%;
+            padding: 0.5rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .form-control:focus {
+            border-color: #34C759;
+            box-shadow: 0 0 0 2px rgba(52, 199, 89, 0.2);
+        }
+        .error {
+            color: #FAA7B8;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+        .service-card {
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        .hero {
+            background: url('https://images.pexels.com/photos/5731878/pexels-photo-5731878.jpeg?auto=compress&cs=tinysrgb&w=1600') no-repeat center center/cover;
+            position: relative;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Header -->
+    <header id="header" class="bg-gradient-to-r from-[#2B4A6B] to-[#34C759] text-white text-center py-8 shadow-lg hidden fade-in">
+        <img src="https://images.pexels.com/photos/4587971/pexels-photo-4587971.jpeg?auto=compress&cs=tinysrgb&w=150" alt="Logo de Cuida a tu Mascota: un perro y gato felices" class="mx-auto mb-4">
+        <h1 class="text-4xl font-bold">Cuida a tu Mascota</h1>
+        <p class="text-lg">Tu clínica veterinaria de confianza</p>
+    </header>
+
+    <!-- Navigation -->
+    <nav id="navbar" class="bg-[#2B4A6B] hidden">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <a href="#" class="flex items-center">
+                <img src="https://images.pexels.com/photos/4587971/pexels-photo-4587971.jpeg?auto=compress&cs=tinysrgb&w=80" alt="Logo de Cuida a tu Mascota" class="mr-2">
+            </a>
+            <button id="navbarToggler" class="text-white text-2xl md:hidden focus:outline-none">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div id="navbarMenu" class="hidden md:flex md:items-center md:space-x-6">
+                <a href="#home" class="nav-link text-white text-lg hover:text-[#F4A261] transition-colors">Inicio</a>
+                <a href="#services" class="nav-link text-white text-lg hover:text-[#F4A261] transition-colors">Servicios</a>
+                <a href="#" id="logoutLink" class="nav-link text-white text-lg hover:text-[#F4A261] transition-colors">Cerrar Sesión</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Form -->
+    <section id="login" class="max-w-md mx-auto mt-10 p-8 bg-white rounded-xl shadow-lg fade-in">
+        <h2 class="text-3xl text-center mb-6" style="color: #2B4A6B;">Iniciar Sesión</h2>
+        <form id="loginForm">
+            <div class="mb-4">
+                <label for="loginEmail" class="block mb-2" style="color: #2B4A6B;">Correo Electrónico</label>
+                <input type="email" id="loginEmail" class="form-control" placeholder="ejemplo@correo.com" required>
+                <div id="loginEmailError" class="error">Por favor, ingrese un correo válido.</div>
+            </div>
+            <div class="mb-4">
+                <label for="loginPassword" class="block mb-2" style="color: #2B4A6B;">Contraseña</label>
+                <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" required>
+                <div id="loginPasswordError" class="error">La contraseña es requerida.</div>
+            </div>
+            <button type="submit" class="btn-primary w-full">Iniciar Sesión</button>
+        </form>
+        <div class="mt-4 text-center space-y-2">
+            <a href="#" id="forgotPasswordLink" class="text-[#2B4A6B] hover:text-[#F4A261] transition-colors">¿Olvidaste tu contraseña?</a><br>
+            <a href="#" id="switchToRegister" class="text-[#2B4A6B] hover:text-[#F4A261] transition-colors">¿No tienes cuenta? Registrarse</a>
+        </div>
+        <div class="flex gap-4 mt-6">
+            <button type="button" class="btn-primary flex-1 flex items-center justify-center gap-2 bg-[#4285F4] hover:bg-[#3578e5]"><i class="fab fa-google"></i> Google</button>
+            <button type="button" class="btn-primary flex-1 flex items-center justify-center gap-2 bg-[#3b5998] hover:bg-[#2d4373]"><i class="fab fa-facebook-f"></i> Facebook</button>
+        </div>
+    </section>
+
+    <!-- Registration Form -->
+    <section id="register" class="max-w-md mx-auto mt-10 p-8 bg-white rounded-xl shadow-lg fade-in hidden">
+        <h2 class="text-3xl text-center mb-6" style="color: #2B4A6B;">Registrarse</h2>
+        <form id="registerForm">
+            <div class="mb-4">
+                <label for="registerName" class="block mb-2" style="color: #2B4A6B;">Nombre Completo</label>
+                <input type="text" id="registerName" class="form-control" placeholder="Tu nombre" required>
+                <div id="registerNameError" class="error">El nombre es requerido.</div>
+            </div>
+            <div class="mb-4">
+                <label for="registerEmail" class="block mb-2" style="color: #2B4A6B;">Correo Electrónico</label>
+                <input type="email" id="registerEmail" class="form-control" placeholder="ejemplo@correo.com" required>
+                <div id="registerEmailError" class="error">Por favor, ingrese un correo válido.</div>
+            </div>
+            <div class="mb-4">
+                <label for="registerPassword" class="block mb-2" style="color: #2B4A6B;">Contraseña</label>
+                <input type="password" id="registerPassword" class="form-control" placeholder="Mínimo 6 caracteres" required>
+                <div id="registerPasswordError" class="error">La contraseña debe tener al menos 6 caracteres.</div>
+            </div>
+            <div class="mb-4">
+                <label for="confirmPassword" class="block mb-2" style="color: #2B4A6B;">Confirmar Contraseña</label>
+                <input type="password" id="confirmPassword" class="form-control" placeholder="Repite tu contraseña" required>
+                <div id="confirmPasswordError" class="error">Las contraseñas no coinciden.</div>
+            </div>
+            <button type="submit" class="btn-primary w-full">Registrarse</button>
+        </form>
+        <div class="mt-4 text-center">
+            <a href="#" id="switchToLogin" class="text-[#2B4A6B] hover:text-[#F4A261] transition-colors">¿Ya tienes cuenta? Iniciar Sesión</a>
+        </div>
+    </section>
+
+    <!-- Forgot Password Form -->
+    <section id="forgotPassword" class="max-w-md mx-auto mt-10 p-8 bg-white rounded-xl shadow-lg fade-in hidden">
+        <h2 class="text-3xl text-center mb-6" style="color: #2B4A6B;">Recuperar Contraseña</h2>
+        <form id="forgotPasswordForm">
+            <div class="mb-4">
+                <label for="forgotPasswordEmail" class="block mb-2" style="color: #2B4A6B;">Correo Electrónico</label>
+                <input type="email" id="forgotPasswordEmail" class="form-control" placeholder="ejemplo@correo.com" required>
+                <div id="forgotPasswordEmailError" class="error">Por favor, ingrese un correo válido.</div>
+            </div>
+            <button type="submit" class="btn-primary w-full">Enviar Enlace de Recuperación</button>
+        </form>
+        <div class="mt-4 text-center">
+            <a href="#" id="backToLogin" class="text-[#2B4A6B] hover:text-[#F4A261] transition-colors">Volver a Iniciar Sesión</a>
+        </div>
+    </section>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero text-white text-center py-24 hidden fade-in">
+        <div class="relative z-10">
+            <h2 class="text-5xl font-bold">Bienvenidos a Cuida a tu Mascota</h2>
+            <p class="text-xl mt-4">Reserva citas veterinarias con facilidad y confianza.</p>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="container mx-auto py-12 hidden fade-in">
+        <h2 class="text-4xl text-center mb-8" style="color: #2B4A6B;">Nuestros Servicios</h2>
+        <div class="text-[#2B4A6B] text-lg text-center mb-6">Paso 1: Seleccione un servicio</div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="service-card bg-white rounded-xl shadow-md p-6">
+                <img src="https://images.pexels.com/photos/6234777/pexels-photo-6234777.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Consulta General" class="w-full h-48 object-cover rounded-lg mb-4">
+                <h3 class="text-xl font-bold" style="color: #2B4A6B;">Consulta General</h3>
+                <p style="color: #2B4A6B;">Evaluaciones completas. Veterinarios: Dr. Pérez, Dr. Gómez. Horario: L-V 9:00-18:00.</p>
+                <button class="btn-primary mt-4" data-service="Consulta General">Reservar Cita</button>
+            </div>
+            <div class="service-card bg-white rounded-xl shadow-md p-6">
+                <img src="https://images.pexels.com/photos/6234612/pexels-photo-6234612.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Vacunación" class="w-full h-48 object-cover rounded-lg mb-4">
+                <h3 class="text-xl font-bold" style="color: #2B4A6B;">Vacunación</h3>
+                <p style="color: #2B4A6B;">Protección esencial. Veterinarios: Dra. López, Dr. Ramírez. Horario: L-V 10:00-16:00.</p>
+                <button class="btn-primary mt-4" data-service="Vacunación">Reservar Cita</button>
+            </div>
+            <div class="service-card bg-white rounded-xl shadow-md p-6">
+                <img src="https://images.pexels.com/photos/6234607/pexels-photo-6234607.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Cirugía" class="w-full h-48 object-cover rounded-lg mb-4">
+                <h3 class="text-xl font-bold" style="color: #2B4A6B;">Cirugía</h3>
+                <p style="color: #2B4A6B;">Procedimientos especializados. Veterinarios: Dr. Torres, Dra. Vargas. Horario: L-V 8:00-14:00.</p>
+                <button class="btn-primary mt-4" data-service="Cirugía">Reservar Cita</button>
+            </div>
+            <div class="service-card bg-white rounded-xl shadow-md p-6">
+                <img src="https://images.pexels.com/photos/1391487/pexels-photo-1391487.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Odontología Veterinaria" class="w-full h-48 object-cover rounded-lg mb-4">
+                <h3 class="text-xl font-bold" style="color: #2B4A6B;">Odontología Veterinaria</h3>
+                <p style="color: #2B4A6B;">Cuidado dental. Veterinarios: Dra. Fernández, Dr. Morales. Horario: L-V 9:00-17:00.</p>
+                <button class="btn-primary mt-4" data-service="Odontología Veterinaria">Reservar Cita</button>
+            </div>
+            <div class="service-card bg-white rounded-xl shadow-md p-6">
+                <img src="https://images.pexels.com/photos/6234623/pexels-photo-6234623.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Emergencias" class="w-full h-48 object-cover rounded-lg mb-4">
+                <h3 class="text-xl font-bold" style="color: #2B4A6B;">Emergencias</h3>
+                <p style="color: #2B4A6B;">Atención 24/7. Veterinarios: Equipo de Guardia. Horario: 24 horas.</p>
+                <button class="btn-primary mt-4" data-service="Emergencias">Reservar Cita</button>
+            </div>
+            <div class="service-card bg-white rounded-xl shadow-md p-6">
+                <img src="https://images.pexels.com/photos/2255987/pexels-photo-2255987.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Grooming" class="w-full h-48 object-cover rounded-lg mb-4">
+                <h3 class="text-xl font-bold" style="color: #2B4A6B;">Grooming</h3>
+                <p style="color: #2B4A6B;">Baño y estética. Especialistas: Ana Ruiz, Carlos Díaz. Horario: L-V 10:00-18:00.</p>
+                <button class="btn-primary mt-4" data-service="Grooming">Reservar Cita</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Booking Form -->
+    <section id="booking" class="max-w-md mx-auto mt-10 p-8 bg-white rounded-xl shadow-lg hidden fade-in">
+        <h2 class="text-3xl text-center mb-6" style="color: #2B4A6B;">Reservar Cita</h2>
+        <div class="text-[#2B4A6B] text-lg text-center mb-6">Paso 2: Complete los detalles</div>
+        <form id="bookingForm">
+            <div class="mb-4">
+                <label for="ownerName" class="block mb-2" style="color: #2B4A6B;">Nombre del Dueño</label>
+                <input type="text" id="ownerName" class="form-control" placeholder="Tu nombre completo" required>
+                <div id="ownerNameError" class="error">El nombre es requerido.</div>
+            </div>
+            <div class="mb-4">
+                <label for="ownerEmail" class="block mb-2" style="color: #2B4A6B;">Correo Electrónico</label>
+                <input type="email" id="ownerEmail" class="form-control" placeholder="ejemplo@correo.com" required>
+                <div id="ownerEmailError" class="error">Por favor, ingrese un correo válido.</div>
+            </div>
+            <div class="mb-4">
+                <label for="ownerPhone" class="block mb-2" style="color: #2B4A6B;">Teléfono</label>
+                <input type="tel" id="ownerPhone" class="form-control" placeholder="123-456-7890" required>
+                <div id="ownerPhoneError" class="error">El teléfono es requerido.</div>
+            </div>
+            <div class="mb-4">
+                <label for="petType" class="block mb-2" style="color: #2B4A6B;">Tipo de Mascota</label>
+                <select id="petType" class="form-control" required>
+                    <option value="">Seleccione</option>
+                    <option value="Perro">Perro</option>
+                    <option value="Gato">Gato</option>
+                    <option value="Otro">Otro</option>
+                </select>
+                <div id="petTypeError" class="error">Seleccione el tipo de mascota.</div>
+            </div>
+            <div class="mb-4">
+                <label for="service" class="block mb-2" style="color: #2B4A6B;">Servicio</label>
+                <input type="text" id="service" class="form-control" readonly>
+            </div>
+            <div class="mb-4">
+                <label for="date" class="block mb-2" style="color: #2B4A6B;">Fecha</label>
+                <input type="date" id="date" class="form-control" required>
+                <div id="dateError" class="error">Seleccione una fecha.</div>
+            </div>
+            <div class="mb-4">
+                <label for="time" class="block mb-2" style="color: #2B4A6B;">Hora</label>
+                <input type="time" id="time" class="form-control" required>
+                <div id="timeError" class="error">Seleccione una hora.</div>
+            </div>
+            <button type="submit" class="btn-primary w-full">Confirmar Reserva</button>
+        </form>
+    </section>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 fade-in">
+        <div class="bg-white rounded-xl p-8 max-w-md w-full shadow-2xl">
+            <h3 class="text-2xl mb-4" style="color: #2B4A6B;">Cita Confirmada</h3>
+            <p class="mb-6" style="color: #2B4A6B;">¡Su cita ha sido reservada! Descargue la factura en formato LaTeX y compílela para obtener el PDF.</p>
+            <div class="flex justify-end gap-4">
+                <button id="downloadInvoice" class="btn-primary">Descargar Factura</button>
+                <button id="returnToServices" class="btn-primary">Volver a Servicios</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer id="footer" class="bg-[#2B4A6B] text-white text-center py-8 hidden fade-in">
+        <p>© 2025 Cuida a tu Mascota. Todos los derechos reservados.</p>
+        <div class="flex justify-center gap-4 mt-2">
+            <a href="#" class="text-white hover:text-[#F4A261] transition-colors" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" class="text-white hover:text-[#F4A261] transition-colors" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+            <a href="#" class="text-white hover:text-[#F4A261] transition-colors" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        </div>
+    </footer>
+
+    <script>
+        // Authentication State
+        let isAuthenticated = false;
+        let userData = { name: '', email: '' };
+
+        // Check if user is registered
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+            userData = JSON.parse(storedUser);
+            isAuthenticated = true;
+        }
+
+        // DOM Elements
+        const header = document.getElementById('header');
+        const navbar = document.getElementById('navbar');
+        const loginSection = document.getElementById('login');
+        const registerSection = document.getElementById('register');
+        const forgotPasswordSection = document.getElementById('forgotPassword');
+        const homeSection = document.getElementById('home');
+        const servicesSection = document.getElementById('services');
+        const bookingSection = document.getElementById('booking');
+        const footer = document.getElementById('footer');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const forgotPasswordForm = document.getElementById('forgotPasswordForm');
+        const bookingForm = document.getElementById('bookingForm');
+        const switchToRegister = document.getElementById('switchToRegister');
+        const switchToLogin = document.getElementById('switchToLogin');
+        const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+        const backToLogin = document.getElementById('backToLogin');
+        const logoutLink = document.getElementById('logoutLink');
+        const confirmationModal = document.getElementById('confirmationModal');
+        const navbarToggler = document.getElementById('navbarToggler');
+        const navbarMenu = document.getElementById('navbarMenu');
+
+        // Update Visibility
+        function updateVisibility() {
+            if (isAuthenticated) {
+                header.classList.remove('hidden');
+                navbar.classList.remove('hidden');
+                homeSection.classList.remove('hidden');
+                footer.classList.remove('hidden');
+                loginSection.style.display = 'none';
+                registerSection.style.display = 'none';
+                forgotPasswordSection.style.display = 'none';
+                servicesSection.style.display = 'none';
+                bookingSection.style.display = 'none';
+            } else {
+                header.classList.add('hidden');
+                navbar.classList.add('hidden');
+                homeSection.classList.add('hidden');
+                footer.classList.add('hidden');
+                loginSection.style.display = 'block';
+                registerSection.style.display = 'none';
+                forgotPasswordSection.style.display = 'none';
+                servicesSection.style.display = 'none';
+                bookingSection.style.display = 'none';
+            }
+        }
+
+        // Initial State
+        updateVisibility();
+
+        // Hamburger Menu
+        navbarToggler.addEventListener('click', () => {
+            navbarMenu.classList.toggle('hidden');
+            navbarMenu.classList.toggle('flex');
+            navbarMenu.classList.toggle('flex-col');
+            const icon = navbarToggler.querySelector('i');
+            icon.classList.toggle('fa-bars');
+            icon.classList.toggle('fa-times');
+        });
+
+        // Show Section
+        function showSection(sectionId) {
+            if (!isAuthenticated) {
+                alert('Por favor, inicia sesión para acceder.');
+                loginSection.style.display = 'block';
+                registerSection.style.display = 'none';
+                return;
+            }
+            [loginSection, registerSection, forgotPasswordSection, homeSection, servicesSection, bookingSection].forEach(section => {
+                section.style.display = 'none';
+            });
+            document.getElementById(sectionId).style.display = 'block';
+        }
+
+        // Navigation Links
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const href = link.getAttribute('href').substring(1);
+                if (href && href !== 'logoutLink') {
+                    showSection(href);
+                }
+            });
+        });
+
+        switchToRegister.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginSection.style.display = 'none';
+            registerSection.style.display = 'block';
+        });
+
+        switchToLogin.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginSection.style.display = 'block';
+            registerSection.style.display = 'none';
+        });
+
+        forgotPasswordLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginSection.style.display = 'none';
+            forgotPasswordSection.style.display = 'block';
+        });
+
+        backToLogin.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginSection.style.display = 'block';
+            forgotPasswordSection.style.display = 'none';
+        });
+
+        logoutLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            isAuthenticated = false;
+            userData = { name: '', email: '' };
+            localStorage.removeItem('user');
+            updateVisibility();
+            alert('Sesión cerrada.');
+        });
+
+        document.querySelectorAll('.btn-primary').forEach(btn => {
+            if (btn.textContent.includes('Google') || btn.textContent.includes('Facebook')) {
+                btn.addEventListener('click', () => {
+                    alert(`Inicio de sesión con ${btn.textContent.trim()} no implementado.`);
+                });
+            }
+        });
+
+        // Login Form
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const emailError = document.getElementById('loginEmailError');
+            const passwordError = document.getElementById('loginPasswordError');
+
+            emailError.style.display = 'none';
+            passwordError.style.display = 'none';
+
+            if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+                emailError.style.display = 'block';
+                return;
+            }
+            if (!password) {
+                passwordError.style.display = 'block';
+                return;
+            }
+
+            isAuthenticated = true;
+            userData.email = email;
+            updateVisibility();
+            showSection('home');
+            alert('Inicio de sesión exitoso.');
+        });
+
+        // Registration Form
+        registerForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const nameError = document.getElementById('registerNameError');
+            const emailError = document.getElementById('registerEmailError');
+            const passwordError = document.getElementById('registerPasswordError');
+            const confirmError = document.getElementById('confirmPasswordError');
+
+            nameError.style.display = 'none';
+            emailError.style.display = 'none';
+            passwordError.style.display = 'none';
+            confirmError.style.display = 'none';
+
+            if (!name) {
+                nameError.style.display = 'block';
+                return;
+            }
+            if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+                emailError.style.display = 'block';
+                return;
+            }
+            if (password.length < 6) {
+                passwordError.style.display = 'block';
+                return;
+            }
+            if (password !== confirmPassword) {
+                confirmError.style.display = 'block';
+                return;
+            }
+
+            isAuthenticated = true;
+            userData = { name, email };
+            localStorage.setItem('user', JSON.stringify(userData));
+            updateVisibility();
+            showSection('home');
+            alert('Registro exitoso. Bienvenido/a.');
+        });
+
+        // Forgot Password Form
+        forgotPasswordForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('forgotPasswordEmail').value;
+            const emailError = document.getElementById('forgotPasswordEmailError');
+
+            emailError.style.display = 'none';
+
+            if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+                emailError.style.display = 'block';
+                return;
+            }
+
+            alert('Se ha enviado un enlace de recuperación a tu email.');
+            forgotPasswordSection.style.display = 'none';
+            loginSection.style.display = 'block';
+        });
+
+        // Booking Form Trigger
+        document.querySelectorAll('.btn-primary[data-service]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (!isAuthenticated) {
+                    alert('Por favor, inicia sesión para reservar.');
+                    loginSection.style.display = 'block';
+                    registerSection.style.display = 'none';
+                    return;
+                }
+                const service = btn.getAttribute('data-service');
+                document.getElementById('service').value = service;
+                document.getElementById('ownerName').value = userData.name;
+                document.getElementById('ownerEmail').value = userData.email;
+                showSection('booking');
+            });
+        });
+
+        // Booking Form Submission
+        bookingForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const ownerName = document.getElementById('ownerName').value;
+            const ownerEmail = document.getElementById('ownerEmail').value;
+            const ownerPhone = document.getElementById('ownerPhone').value;
+            const petType = document.getElementById('petType').value;
+            const service = document.getElementById('service').value;
+            const date = document.getElementById('date').value;
+            const time = document.getElementById('time').value;
+            const ownerNameError = document.getElementById('ownerNameError');
+            const ownerEmailError = document.getElementById('ownerEmailError');
+            const ownerPhoneError = document.getElementById('ownerPhoneError');
+            const petTypeError = document.getElementById('petTypeError');
+            const dateError = document.getElementById('dateError');
+            const timeError = document.getElementById('timeError');
+
+            ownerNameError.style.display = 'none';
+            ownerEmailError.style.display = 'none';
+            ownerPhoneError.style.display = 'none';
+            petTypeError.style.display = 'none';
+            dateError.style.display = 'none';
+            timeError.style.display = 'none';
+
+            if (!ownerName) {
+                ownerNameError.style.display = 'block';
+                return;
+            }
+            if (!ownerEmail.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+                ownerEmailError.style.display = 'block';
+                return;
+            }
+            if (!ownerPhone) {
+                ownerPhoneError.style.display = 'block';
+                return;
+            }
+            if (!petType) {
+                petTypeError.style.display = 'block';
+                return;
+            }
+            if (!date) {
+                dateError.style.display = 'block';
+                return;
+            }
+            if (!time) {
+                timeError.style.display = 'block';
+                return;
+            }
+
+            // Generate LaTeX Invoice
+            const escapeLaTeX = (str) => str.replace(/[\\{}_#&%$]/g, '\\$&');
+            const invoiceContent = `
+\\documentclass{article}
+\\usepackage[utf8]{inputenc}
+\\usepackage{geometry}
+\\usepackage{booktabs}
+\\usepackage{xcolor}
+\\definecolor{primaryblue}{HTML}{2B4A6B}
+\\definecolor{naturalgreen}{HTML}{34C759}
+\\usepackage{nopageno}
+\\geometry{a4paper, margin=1in}
+\\begin{document}
+\\begin{center}
+    \\vspace*{1cm}
+    {\\Huge \\textbf{Cuida a tu Mascota}}\\\\
+    \\vspace{0.5cm}
+    {\\large Factura de Reserva de Cita Veterinaria}\\\\
+    \\vspace{0.5cm}
+    {\\color{primaryblue}\\rule{0.5\\textwidth}{0.4pt}}
+\\end{center}
+\\vspace{1cm}
+\\begin{tabular}{ll}
+    \\textbf{Nombre del Dueño:} & ${escapeLaTeX(ownerName)} \\\\
+    \\textbf{Correo Electrónico:} & ${escapeLaTeX(ownerEmail)} \\\\
+    \\textbf{Teléfono:} & ${escapeLaTeX(ownerPhone)} \\\\
+    \\textbf{Tipo de Mascota:} & ${escapeLaTeX(petType)} \\\\
+    \\textbf{Servicio:} & ${escapeLaTeX(service)} \\\\
+    \\textbf{Fecha:} & ${escapeLaTeX(date)} \\\\
+    \\textbf{Hora:} & ${escapeLaTeX(time)} \\\\
+    \\textbf{Fecha de Emisión:} & May 26, 2025 \\\\
+\\end{tabular}
+\\vspace{1cm}
+\\begin{center}
+    {\\color{naturalgreen}\\textbf{¡Gracias por confiar en nosotros!}}\\\\
+    \\vspace{0.5cm}
+    Cuida a tu Mascota - Tu clínica veterinaria de confianza
+\\end{center}
+\\end{document}
+            `;
+
+            // Show Modal
+            confirmationModal.classList.remove('hidden');
+
+            // Download Invoice
+            document.getElementById('downloadInvoice').onclick = () => {
+                const blob = new Blob([invoiceContent], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'factura-cita-veterinaria.tex';
+                a.click();
+                URL.revokeObjectURL(url);
+            };
+
+            // Return to Services
+            document.getElementById('returnToServices').onclick = () => {
+                confirmationModal.classList.add('hidden');
+                showSection('services');
+                bookingForm.reset();
+            };
+        });
+
+        // Optimize Images
+        document.querySelectorAll('img').forEach(img => {
+            img.setAttribute('loading', 'lazy');
+        });
+    </script>
+</body>
+</html>
